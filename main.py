@@ -45,6 +45,28 @@ async def get_webhook(ctx):
 			webhook = w
 			
 	return webhook
+	
+async def is_authorized(ctx):
+	authorized = [233644966809829376, 255378643566460938]
+	return ctx.author.id in authorized
+		
+@bot.command()
+@commands.check(is_authorized)
+async def add(ctx, character, *, quote):
+	characters = await load_characters()
+	await ctx.message.delete()
+	if character in characters:
+		quote = quote[0].upper() + quote[1:]
+		with open('quotes/' + character + '.txt', 'a') as myfile:
+			myfile.write('#' + quote)
+		await ctx.send(quote, delete_after = 5)
+	else:
+		await ctx.send("Le personnage n'existe pas.", delete_after = 5)
+		
+@add.error
+async def add_error(ctx, error):
+	if isinstance(error, commands.CheckFailure):
+		await ctx.send('Mooordu! Mooordu! Mordu mordu mordu mordu la ligne !!!!')
 
 async def change_webhook_channel(id):
 	payload = {
@@ -63,7 +85,7 @@ async def change_webhook_channel(id):
 					  
 	response = request.urlopen(req)
 
-async def random_quotes(character, words):
+async def random_quotes(character, words=''):
 	characters = await load_characters()
 	character = character.lower()
 	
@@ -91,15 +113,11 @@ async def random_quotes(character, words):
 
 	return response
 
-async def send_webhook_message(ctx, arg):
+async def send_webhook_message(ctx, character, words=''):
 	characters = await load_characters()
-	character = arg[0]
-	words = ''
-	if len(arg) > 1:
-		words = ' '.join(arg[1:])
 		
 	webhook = await get_webhook(ctx)
-	if webhook != None:
+	if webhook != None and character in characters:
 		await change_webhook_channel(ctx.channel.id)
 		content = await random_quotes(character, words)
 		await webhook.send(content=content, username=character.capitalize(), avatar_url=characters[character])
@@ -116,7 +134,7 @@ async def on_message(message):
 		arg = content.split()
 		if arg[0] in characters:
 			await message.delete()
-			await send_webhook_message(message, arg)
+			await send_webhook_message(message, arg[0], ' '.join(arg[1:]) if len(arg) > 1 else '')
 			
 	await bot.process_commands(message)
 	
