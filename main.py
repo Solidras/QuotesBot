@@ -23,7 +23,6 @@ WEBHOOK_ID = WEBHOOK_URL.split('/')[-1]
 bot = commands.Bot(command_prefix='!')
 
 
-
 #### Commands ####
 	
 @bot.event
@@ -40,23 +39,30 @@ async def on_message(message):
 			await send_webhook_message(message, arg[0], ' '.join(arg[1:]) if len(arg) > 1 else '')
 			
 	await bot.process_commands(message)
-	
-async def is_authorized(ctx):
-	authorized = [233644966809829376, 255378643566460938]
-	return ctx.author.id in authorized
 		
-@bot.command()
-@commands.check(is_authorized)
+@bot.command(description='Permet d\'ajouter une citation à un personnage. Le premier paramètres est le personnage et les suivants sont la citation (sans "")')
 async def add(ctx, character, *, quote):
 	characters = await load_characters()
 	await ctx.message.delete()
 	if character in characters:
 		quote = quote[0].upper() + quote[1:]
-		with open('quotes/' + character + '.txt', 'a') as myfile:
-			myfile.write('#' + quote)
+		with open('quotes/' + character + '.txt', 'a') as f:
+			f.write('#' + quote)
 		await ctx.send(quote, delete_after = 5)
 	else:
 		await ctx.send("Le personnage n'existe pas.", delete_after = 5)
+		
+
+@bot.command(description='La commande prend 2 paramètres : un personnage et un lien vers une image de profil (de préference imgur) avec l\'extension jpg.')
+async def add_character(ctx, character, image_url):
+	characters = await load_characters()
+	character = character.lower()
+	if character in characters:
+		await ctx.send("Le personnage existe déjà.", delete_after = 5)
+	else:
+		with open('characters.txt', 'a') as f:
+			f.write(character + ',' + image_url + '\n')
+		f = open('quotes/' + character + '.txt', 'w+')
 		
 		
 
