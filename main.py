@@ -16,35 +16,30 @@ load_dotenv()
 
 #Must be https://discordapp.com/api/webhooks/your_id with no token after the id
 WEBHOOK_URL = os.getenv('WEBHOOK_URL')
+
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 WEBHOOK_ID = WEBHOOK_URL.split('/')[-1]
 
 bot = commands.Bot(command_prefix='!')
-			  
-async def load_characters():
-	c = {}
-	f = open('characters.txt', 'r')
-	for line in f.readlines():
-		character,url = line.split(',')
-		c[character] = url
-	f.close()
-	return c
 
-@bot.event
-async def on_ready():
-	print('Logged in as')
-	print(bot.user.name)
-	print(bot.user.id)
-	print('------')
+
+
+#### Commands ####
 	
-async def get_webhook(ctx):
-	webhooks = await ctx.guild.webhooks()
-	webhook = None
-	for w in webhooks:
-		if w.id == int(WEBHOOK_ID):
-			webhook = w
+@bot.event
+async def on_message(message):
+	if message.author == bot.user:
+		return
+
+	if message.content.startswith('!'):
+		characters = await load_characters()
+		content = message.content[1:]
+		arg = content.split()
+		if arg[0] in characters:
+			await message.delete()
+			await send_webhook_message(message, arg[0], ' '.join(arg[1:]) if len(arg) > 1 else '')
 			
-	return webhook
+	await bot.process_commands(message)
 	
 async def is_authorized(ctx):
 	authorized = [233644966809829376, 255378643566460938]
@@ -63,10 +58,49 @@ async def add(ctx, character, *, quote):
 	else:
 		await ctx.send("Le personnage n'existe pas.", delete_after = 5)
 		
+		
+
+#### Bot event handlers ####
+
+@bot.event
+async def on_ready():
+	print('Logged in as')
+	print(bot.user.name)
+	print(bot.user.id)
+	print('------')
+	
+@bot.event
+async def on_command_error(ctx, error):
+	characters = await load_characters()
+	if ctx.message.content.split()[0][1:] in characters:
+		return
+	raise error
+	
 @add.error
 async def add_error(ctx, error):
 	if isinstance(error, commands.CheckFailure):
 		await ctx.send('Mooordu! Mooordu! Mordu mordu mordu mordu la ligne !!!!')
+		
+
+#### Utilities functions ####
+			  
+async def load_characters():
+	c = {}
+	f = open('characters.txt', 'r')
+	for line in f.readlines():
+		character,url = line.split(',')
+		c[character] = url
+	f.close()
+	return c
+	
+async def get_webhook(ctx):
+	webhooks = await ctx.guild.webhooks()
+	webhook = None
+	for w in webhooks:
+		if w.id == int(WEBHOOK_ID):
+			webhook = w
+			
+	return webhook
 
 async def change_webhook_channel(id):
 	payload = {
@@ -121,28 +155,5 @@ async def send_webhook_message(ctx, character, words=''):
 		await change_webhook_channel(ctx.channel.id)
 		content = await random_quotes(character, words)
 		await webhook.send(content=content, username=character.capitalize(), avatar_url=characters[character])
-	
-
-@bot.event
-async def on_message(message):
-	if message.author == bot.user:
-		return
-
-	if message.content.startswith('!'):
-		characters = await load_characters()
-		content = message.content[1:]
-		arg = content.split()
-		if arg[0] in characters:
-			await message.delete()
-			await send_webhook_message(message, arg[0], ' '.join(arg[1:]) if len(arg) > 1 else '')
-			
-	await bot.process_commands(message)
-	
-@bot.event
-async def on_command_error(ctx, error):
-	characters = await load_characters()
-	if ctx.message.content.split()[0][1:] in characters:
-		return
-	raise error
 
 bot.run(BOT_TOKEN)
