@@ -142,6 +142,9 @@ async def random_quotes(character, words=''):
 	quotes = f.read().split('#')
 	f.close()
 	
+	#Remove empty string
+	quotes = list(filter(lambda q : q != '', quotes))
+	
 	#If a word is in more than 1 quote, it doesn't always be the same quote.
 	random.shuffle(quotes)
 	
