@@ -9,3 +9,10 @@ bohort,https://imgur.com/FgsEepV.jpg
 merlin,https://imgur.com/TfKD47n.jpg
 leodagan,https://imgur.com/oVQD1cy.jpg
 karadoc,https://imgur.com/b9i1hOe.jpg
+gandalf,https://i.imgur.com/gF6YeBm.jpg
+grace,https://i.imgur.com/9OkBzIJ.jpg
+michael,https://i.imgur.com/xW3r9YR.jpg
+lord-asriel,https://i.imgur.com/EZpGXGF.jpg
+dwight,https://i.imgur.com/1DGAbOB.jpg
+exo,https://i.imgur.com/1YpzpUh.jpg
+tommy,https://i.imgur.com/y0bmouk.jpg
