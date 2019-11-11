@@ -24,6 +24,12 @@ bot = commands.Bot(command_prefix='!')
 
 
 #### Commands ####
+
+@bot.command(description="Affiche la liste des personnages disponibles")
+async def characters(ctx):
+	characters = await load_characters()
+	embed = discord.Embed(title='Liste des personnages', type='rich', description='\n'.join([c.capitalize() for c in characters]), colour=discord.Color.dark_green())
+	await ctx.send(embed=embed)
 	
 @bot.event
 async def on_message(message):
@@ -40,7 +46,7 @@ async def on_message(message):
 			
 	await bot.process_commands(message)
 		
-@bot.command(description='Permet d\'ajouter une citation à un personnage. Le premier paramètres est le personnage et les suivants sont la citation (sans "")')
+@bot.command(description='Permet d\'ajouter une citation à un personnage. Le premier paramètre est le personnage et les suivants sont la citation (sans "")')
 async def add(ctx, character, *, quote):
 	characters = await load_characters()
 	await ctx.message.delete()
