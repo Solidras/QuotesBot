@@ -102,15 +102,16 @@ async def on_command_error(ctx, error):
 	characters = await load_characters()
 	if ctx.message.content.split()[0][1:] in characters:
 		return
+	elif isinstance(error, commands.CommandNotFound):
+		await ctx.send('La commande n\'existe pas.')
+		return
 	raise error
 	
 @add.error
 async def add_error(ctx, error):
 	if isinstance(error, commands.CheckFailure):
 		await ctx.send('Mooordu! Mooordu! Mordu mordu mordu mordu la ligne !!!!')
-	elif isinstance(error, commands.CommandNotFound):
-		await ctx.send('La commande n\'existe pas.')
-		
+	
 
 #### Utilities functions ####
 
