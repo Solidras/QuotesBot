@@ -1,9 +1,10 @@
-#https://discordapp.com/api/oauth2/authorize?client_id=550628745816440842&permissions=2080894066&scope=bot
+#https://discordapp.com/oauth2/authorize?client_id=642184501245640704&permissions=2080894066&scope=bot
 
 import os
 import asyncio
 import discord
 import random
+from collections import defaultdict
 
 import json
 from urllib import request
@@ -70,6 +71,21 @@ async def add_character(ctx, character, image_url):
 			f.write(character + ',' + image_url + '\n')
 		f = open('quotes/' + character + '.txt', 'w+')
 		
+@bot.command(description='Génère les statistiques du serveur. La commande peut prendre en paramètre des mentions d\'utilisateurs ou de channels\nExemple : !stats @user1 @user2 #channel2 génèrera les statistiques du channel2 pour les user1 et user2.')
+async def stats(ctx):
+	
+	await ctx.send("Cette opération peut prendre plusieurs dizaines de secondes.")
+	
+	users_mentions = ctx.message.mentions
+	channels_mentions = ctx.message.channel_mentions
+	# If no channels are mentionned, we take all text channels
+	text_channels = ctx.guild.text_channels if not channels_mentions else channels_mentions
+	
+	embed = await stats_all(text_channels=text_channels, user=users_mentions, all=(not channels_mentions and not users_mentions))
+
+	embed.set_thumbnail(url=ctx.guild.icon_url)
+		
+	await ctx.send(embed=embed)
 		
 
 #### Bot event handlers ####
@@ -95,6 +111,52 @@ async def add_error(ctx, error):
 		
 
 #### Utilities functions ####
+
+async def stats_all(*, text_channels, user=[], all=False):
+	msg_by_person = defaultdict(lambda: 0)
+	msg_by_channel = defaultdict(lambda: 0)
+	
+	for channel in text_channels:
+		async for message in channel.history(limit=None):
+			if (not user or message.author in user) and not message.author.bot:
+				msg_by_person[message.author] += 1
+				msg_by_channel[channel] += 1
+	
+	#Sort to find most actives channels/users
+	msg_by_person = sorted(msg_by_person.items(), key=lambda kv: kv[1], reverse=True)
+	msg_by_channel = sorted(msg_by_channel.items(), key=lambda kv: kv[1], reverse=True)
+
+	embed = discord.Embed(title='Statistiques du serveur', type='rich')
+	
+	#If we have at least one user mention (not user == no users specified)
+	if all or not user or len(user) > 1:
+		most_active_users = ''
+		for i in range(min(len(msg_by_person), 6)):
+			most_active_users += msg_by_person[i][0].mention + ' : ' + str(msg_by_person[i][1]) + ' m.\n'
+		
+		embed.add_field(name='Membres les plus actifs', value=most_active_users, inline=True)
+	
+	if all or len(text_channels) > 1:
+		most_active_channels = ''
+		for i in range(min(len(msg_by_channel), 5)):
+			most_active_channels += msg_by_channel[i][0].mention + ' : ' + str(msg_by_channel[i][1]) + ' m.\n'
+		
+		embed.add_field(name='Channels les plus actifs', value=most_active_channels, inline=True)
+	
+	total_messages = str(sum([u[1] for u in msg_by_person])) + ' m.'
+	embed.add_field(name='Total des messages', value=total_messages, inline=True)
+	
+	footer_text = 'Ces statistiques ont été générées pour '
+	if all:
+		footer_text += 'l\'ensemble du serveur.'
+	elif user:
+		footer_text += '{0} dans les channels {1}.'.format(', '.join([u[0].name for u in msg_by_person]), ', '.join([c[0].name for c in msg_by_channel]))
+	else:
+		footer_text += 'les channels {0}.'.format(', '.join([c[0].name for c in msg_by_channel]))
+	
+	embed.set_footer(text=footer_text)
+	
+	return embed
 			  
 async def load_characters():
 	c = {}
