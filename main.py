@@ -74,7 +74,7 @@ async def add_character(ctx, character, image_url):
 @bot.command(description='Génère les statistiques du serveur. La commande peut prendre en paramètre des mentions d\'utilisateurs ou de channels\nExemple : !stats @user1 @user2 #channel2 génèrera les statistiques du channel2 pour les user1 et user2.')
 async def stats(ctx):
 	
-	await ctx.send("Cette opération peut prendre plusieurs dizaines de secondes.")
+	await ctx.send("Cette opération peut prendre de quelques secondes à quelques minutes.")
 	
 	users_mentions = ctx.message.mentions
 	channels_mentions = ctx.message.channel_mentions
@@ -108,6 +108,8 @@ async def on_command_error(ctx, error):
 async def add_error(ctx, error):
 	if isinstance(error, commands.CheckFailure):
 		await ctx.send('Mooordu! Mooordu! Mordu mordu mordu mordu la ligne !!!!')
+	elif isinstance(error, commands.CommandNotFound):
+		await ctx.send('La commande n\'existe pas.')
 		
 
 #### Utilities functions ####
@@ -131,14 +133,14 @@ async def stats_all(*, text_channels, user=[], all=False):
 	#If we have at least one user mention (not user == no users specified)
 	if all or not user or len(user) > 1:
 		most_active_users = ''
-		for i in range(min(len(msg_by_person), 6)):
+		for i in range(min(len(msg_by_person), 10)):
 			most_active_users += msg_by_person[i][0].mention + ' : ' + str(msg_by_person[i][1]) + ' m.\n'
 		
 		embed.add_field(name='Membres les plus actifs', value=most_active_users, inline=True)
 	
 	if all or len(text_channels) > 1:
 		most_active_channels = ''
-		for i in range(min(len(msg_by_channel), 5)):
+		for i in range(min(len(msg_by_channel), 10)):
 			most_active_channels += msg_by_channel[i][0].mention + ' : ' + str(msg_by_channel[i][1]) + ' m.\n'
 		
 		embed.add_field(name='Channels les plus actifs', value=most_active_channels, inline=True)

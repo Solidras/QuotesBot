@@ -16,3 +16,7 @@ lord-asriel,https://i.imgur.com/EZpGXGF.jpg
 dwight,https://i.imgur.com/1DGAbOB.jpg
 exo,https://i.imgur.com/1YpzpUh.jpg
 tommy,https://i.imgur.com/y0bmouk.jpg
+jm,Lepen
+jeanmarie,https://img.bfmtv.com/c/1000/600/4e0527/55e86966b4cc097dc228b0fce2.jpg
+meluche,https://cdn-s-www.ledauphine.com/images/1882CE7F-0D8A-4E35-9792-988512910DD3/LDL_V0_12/jean-luc-melenchon-lors-d-un-conference-de-presse-a-strasbourg-le-24-octobre-photo-frederick-florin-afp-1540629409.jpg
+roger,https://i.imgur.com/R7HvR3f.png
