@@ -119,16 +119,25 @@ async def add_error(ctx, error):
 async def stats_all(*, text_channels, user=[], all=False):
 	msg_by_person = defaultdict(lambda: 0)
 	msg_by_channel = defaultdict(lambda: 0)
+	reactions = defaultdict(lambda: 0)
 	
 	for channel in text_channels:
 		async for message in channel.history(limit=None):
 			if (not user or message.author in user) and not message.author.bot:
 				msg_by_person[message.author] += 1
 				msg_by_channel[channel] += 1
+			
+			#Emoji are calculated by user. If a user is given, it count the most used reaction by this user.
+			msg_reaction = message.reactions
+			for reaction in msg_reaction:
+				async for u in reaction.users():
+					if (not user or u in user):
+						reactions[reaction.emoji] += reaction.count
 	
-	#Sort to find most actives channels/users
+	#Sort to find most actives channels/users/reactions
 	msg_by_person = sorted(msg_by_person.items(), key=lambda kv: kv[1], reverse=True)
 	msg_by_channel = sorted(msg_by_channel.items(), key=lambda kv: kv[1], reverse=True)
+	reactions = sorted(reactions.items(), key=lambda kv: kv[1], reverse=True)
 
 	embed = discord.Embed(title='Statistiques du serveur', type='rich')
 	
@@ -148,6 +157,12 @@ async def stats_all(*, text_channels, user=[], all=False):
 			most_active_channels += msg_by_channel[i][0].mention + ' : ' + str(msg_by_channel[i][1]) + ' m. (' + str(round(100*msg_by_channel[i][1]/total_msg)) + '%)\n'
 		
 		embed.add_field(name='Channels les plus actifs', value=most_active_channels, inline=True)
+		
+	most_used_reactions = ''
+	for i in range(min(len(reactions), 10)):
+		most_used_reactions += str(reactions[i][1]) + ' ' + str(reactions[i][0]) + '\n'
+	if most_used_reactions:
+		embed.add_field(name='Réactions les plus utilisées', value=most_used_reactions, inline=True)
 	
 	embed.add_field(name='Total des messages', value=str(total_msg) + ' m.', inline=True)
 	
