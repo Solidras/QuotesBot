@@ -52,7 +52,6 @@ async def add(ctx, character, *, quote):
 	characters = await load_characters()
 	await ctx.message.delete()
 	if character in characters:
-		quote = quote[0].upper() + quote[1:]
 		with open('quotes/' + character + '.txt', 'a') as f:
 			f.write('#' + quote)
 		await ctx.send(quote, delete_after = 5)
@@ -104,7 +103,7 @@ async def on_command_error(ctx, error):
 	if ctx.message.content.split()[0][1:] in characters:
 		return
 	elif isinstance(error, commands.CommandNotFound):
-		await ctx.send('La commande n\'existe pas.')
+		await ctx.send('La commande n\'existe pas.', delete_after=3)
 		return
 	raise error
 	
@@ -127,7 +126,7 @@ async def stats_all(*, text_channels, user=[], all=False):
 				msg_by_person[message.author] += 1
 				msg_by_channel[channel] += 1
 			
-			#Emoji are calculated by user. If a user is given, it count the most used reaction by this user.
+			#Emoji are calculated per user. If a user is given, it count the most used reaction by this user.
 			msg_reaction = message.reactions
 			for reaction in msg_reaction:
 				async for u in reaction.users():
