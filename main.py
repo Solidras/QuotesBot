@@ -295,13 +295,14 @@ async def send_webhook_message(ctx, character, words=''):
 		await webhook.send(content=content, username=character.capitalize(), avatar_url=characters[character])
 		
 async def update_hour_nickname():
-	while not bot.is_closed:
+	await bot.wait_until_ready()
+	while not bot.is_closed():
 		with open('ressources/hour', 'r') as f:
 			line = f.readline()
 			while line:
 				member, hour = line.split(',')
 				
-				guild = discord.utils.get(bot.guilds, id=550631040826343427)
+				guild = discord.utils.get(bot.guilds, id=460929490466373655)
 
 				if guild is not None:
 					member = guild.get_member_named(member)
@@ -310,9 +311,10 @@ async def update_hour_nickname():
 					new_nick = nickname + ' (' + str(hour.hour) + 'h)'
 					
 					await member.edit(nick=new_nick)
+					print("Updated : " + new_nick)
 				
 				line = f.readline()
-		await asyncio.sleep(3600)
+		await asyncio.sleep(300)
 			
 bot.loop.create_task(update_hour_nickname())
 bot.run(BOT_TOKEN)
