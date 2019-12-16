@@ -32,6 +32,7 @@ async def characters(ctx):
 	characters = await load_characters()
 	embed = discord.Embed(title='Liste des personnages', type='rich', description='\n'.join([c.capitalize() for c in characters]), colour=discord.Color.dark_green())
 	await ctx.send(embed=embed)
+	await ctx.send('*Vous pouvez également ajouter un _all après le nom du personnage pour voir toutes les citations. La recherche par mot est également disponible avec le _all.*')
 	
 @bot.event
 async def on_message(message):
@@ -45,6 +46,9 @@ async def on_message(message):
 		if arg[0] in characters:
 			await message.delete()
 			await send_webhook_message(message, arg[0], ' '.join(arg[1:]) if len(arg) > 1 else '')
+		# Command : character_all -> shows all quotes from this character
+		elif arg[0][:-4] in characters and arg[0][-4:] == '_all':
+			await show_all_quotes(message.channel, arg[0][:-4], ' '.join(arg[1:]) if len(arg) > 1 else '')
 			
 	await bot.process_commands(message)
 		
@@ -100,7 +104,7 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
 	characters = await load_characters()
-	if ctx.message.content.split()[0][1:] in characters:
+	if ctx.message.content.split()[0][1:] in characters or ctx.message.content.split()[0][1:][:-4] in characters:
 		return
 	elif isinstance(error, commands.CommandNotFound):
 		await ctx.send('La commande n\'existe pas.', delete_after=3)
@@ -211,6 +215,44 @@ async def change_webhook_channel(id):
                       method='PATCH')
 					  
 	response = request.urlopen(req)
+	
+async def show_all_quotes(ctx, character, words=''):
+	characters = await load_characters()
+	character = character.lower()
+	
+	if not character in characters:
+		character = characters[0]
+		
+	f = open('quotes/' + character + '.txt', 'r')
+	quotes = f.read().split('#')
+	f.close()
+	
+	#Remove empty string
+	quotes = list(filter(lambda q : q != '', quotes))
+	
+	tmp = []
+	for q in quotes:
+		if words.lower() in q.lower():
+			tmp.append(q)
+	quotes = tmp
+	nb_embed = ((sum(map(len, quotes)) + 4*len(quotes))//2048)+1
+	c = 1
+	
+	while quotes:
+		description=''
+		while len(quotes[0]) + 4 >= 2048:
+			del quotes[0]
+		while len(description) + len(quotes[0]) + 4 < 2048:
+			description += '- ' + quotes[0] + '\n'
+			del quotes[0]
+			if not quotes:
+				break
+			
+		title = 'Citations de ' + character.capitalize() + ' ' + str(c) + '/' + str(nb_embed)
+		embed = discord.Embed(title=title, description=description, type='rich')
+
+		await ctx.send(embed=embed)
+		c += 1
 
 async def random_quotes(character, words=''):
 	characters = await load_characters()
