@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from quotes import Quotes
 from stats import Stats
+from urban import Urban
 from shared import *
 
 load_dotenv()
@@ -23,6 +24,7 @@ WEBHOOK_ID = WEBHOOK_URL.split('/')[-1]
 bot = commands.Bot(command_prefix='!')
 bot.add_cog(Quotes(bot))
 bot.add_cog(Stats(bot))
+bot.add_cog(Urban(bot))
 
 #### Bot event handlers ####
 
