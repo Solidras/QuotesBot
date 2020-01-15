@@ -20,7 +20,7 @@ WEBHOOK_URL = os.getenv('WEBHOOK_URL')
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 WEBHOOK_ID = WEBHOOK_URL.split('/')[-1]
 
-bot = commands.Bot(command_prefix='!')
+bot = commands.Bot(command_prefix='/')
 bot.add_cog(Quotes(bot))
 bot.add_cog(Stats(bot))
 
