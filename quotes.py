@@ -27,7 +27,7 @@ class Quotes(commands.Cog):
 		if message.author == self.bot.user:
 			return
 
-		if message.content.startswith('!'):
+		if message.content.startswith('/'):
 			characters = await load_characters()
 			content = message.content[1:]
 			arg = content.split()
