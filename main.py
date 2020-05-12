@@ -53,28 +53,5 @@ async def ping(ctx):
 	
 #### Utilities functions ####
 
-#Temporary features (used for time difference)
-async def update_hour_nickname():
-	await bot.wait_until_ready()
-	while not bot.is_closed():
-		with open('ressources/hour', 'r') as f:
-			line = f.readline()
-			while line:
-				member, hour = line.split(',')
-				
-				guild = discord.utils.get(bot.guilds, id=460929490466373655)
 
-				if guild is not None:
-					member = guild.get_member_named(member)
-					nickname = member.nick.split('(')[0][:-1]
-					hour = datetime.datetime.now() + datetime.timedelta(hours=int(hour))
-					new_nick = nickname + ' (' + str(hour.hour) + 'h)'
-					
-					await member.edit(nick=new_nick)
-					print("Updated : " + new_nick)
-				
-				line = f.readline()
-		await asyncio.sleep(300)
-			
-bot.loop.create_task(update_hour_nickname())
 bot.run(BOT_TOKEN)

@@ -13,7 +13,7 @@ class Urban(commands.Cog):
 
 	@commands.command(aliases=['urban'], description='Cherche les mots ou l\'abréviation demandés sur le site UrbanDictionnary.')
 	async def claudio_translator(self, ctx, *, words):
-		await ctx.message.delete()
+#		await ctx.message.delete()
 		
 		url = 'http://api.urbandictionary.com/v0/define?term=' + words
 		res = requests.get(url).json()["list"]
