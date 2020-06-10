@@ -30,7 +30,7 @@ class Quotes(commands.Cog):
 		if message.content.startswith('/'):
 			characters = await load_characters()
 			content = message.content[1:]
-			arg = content.split()
+			arg = content.lower().split()
 			if arg[0] in characters:
 				await message.delete()
 				await self.send_webhook_message(message, arg[0], ' '.join(arg[1:]) if len(arg) > 1 else '')

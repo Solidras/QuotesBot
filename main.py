@@ -38,7 +38,7 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
 	characters = await load_characters()
-	if ctx.message.content.split()[0][1:] in characters or ctx.message.content.split()[0][1:][:-4] in characters:
+	if ctx.message.content.lower().split()[0][1:] in characters or ctx.message.content.lower().split()[0][1:][:-4] in characters:
 		return
 	elif isinstance(error, commands.CommandNotFound):
 		await ctx.send('La commande n\'existe pas.', delete_after=3)
